@@ -69,6 +69,10 @@
   }
 
   // ---------- Elements ----------
+  const collapsedEl = document.getElementById('ebm-collapsed');
+  const collapsedIconsEl = document.getElementById('ebm-collapsed-icons');
+  const expandBtn = document.getElementById('ebm-expand-btn');
+  const collapseBtn = document.getElementById('ebm-collapse-btn');
   const listEl = document.getElementById('ebm-list');
   const addCurrentBtn = document.getElementById('ebm-add-current');
   const addManualBtn = document.getElementById('ebm-add-manual');
@@ -88,6 +92,7 @@
 
   // ---------- State ----------
   let bookmarksCache = [];
+  let isCollapsed = true;
   let contextBookmarkId = null;
   let editBookmarkId = null;
   let dragSrcEl = null;
@@ -97,6 +102,21 @@
     bookmarksCache = flatten(tree).reverse(); // latest first
     render();
   }
+
+  // ---------- View switching ----------
+  function applyView() {
+    document.body.classList.toggle('collapsed', isCollapsed);
+    render();
+  }
+
+  function setCollapsed(value) {
+    isCollapsed = value;
+    applyView();
+    chrome.storage.local.set({ collapsed: value });
+  }
+
+  expandBtn.addEventListener('click', () => setCollapsed(false));
+  collapseBtn.addEventListener('click', () => setCollapsed(true));
 
   // ---------- Add current page ----------
   addCurrentBtn.addEventListener('click', async () => {
@@ -227,7 +247,23 @@
   }
 
   // ---------- Render ----------
-  function render() {
+  function renderCollapsed() {
+    collapsedIconsEl.innerHTML = '';
+    const items = bookmarksCache.slice(0, 25);
+    for (const bm of items) {
+      const div = document.createElement('div');
+      div.className = 'ebm-collapsed-icon';
+      div.title = bm.title || bm.url;
+      div.appendChild(createIconElement(bm.url));
+      div.addEventListener('mouseup', (e) => {
+        if (e.button === 0) chrome.tabs.create({ url: bm.url });
+      });
+      div.addEventListener('contextmenu', (e) => showContextMenu(e, bm.id));
+      collapsedIconsEl.appendChild(div);
+    }
+  }
+
+  function renderExpanded() {
     listEl.innerHTML = '';
     if (!bookmarksCache.length) {
       listEl.innerHTML = '<div class="ebm-empty">No bookmarks</div>';
@@ -264,11 +300,21 @@
     }
   }
 
+  function render() {
+    if (isCollapsed) renderCollapsed();
+    else renderExpanded();
+  }
+
   // ---------- Live sync ----------
   chrome.bookmarks.onCreated.addListener(loadBookmarks);
   chrome.bookmarks.onRemoved.addListener(loadBookmarks);
   chrome.bookmarks.onChanged.addListener(loadBookmarks);
   chrome.bookmarks.onMoved.addListener(loadBookmarks);
 
+  // ---------- Init ----------
+  chrome.storage.local.get('collapsed', ({ collapsed }) => {
+    isCollapsed = collapsed !== false;
+    applyView();
+  });
   loadBookmarks();
 })();
