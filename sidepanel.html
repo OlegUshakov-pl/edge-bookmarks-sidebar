@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Закладки</title>
+  <title>Bookmarks</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -346,7 +346,7 @@
 <body>
   <div id="panel">
     <!-- Верх: + (добавить текущую страницу) -->
-    <button id="add-current-btn" class="icon-btn" title="Добавить текущую страницу">
+    <button id="add-current-btn" class="icon-btn" title="Add current page">
       <i class="fa-solid fa-plus text-lg"></i>
     </button>
 
@@ -358,24 +358,24 @@
       <div id="bookmarks-list"></div>
 
       <!-- Кнопка + внизу списка -->
-      <button id="add-manual-btn" title="Добавить закладку">
+      <button id="add-manual-btn" title="Add bookmark">
         <i class="fa-solid fa-plus"></i>
       </button>
 
       <!-- Форма ручного добавления -->
       <div id="add-form">
-        <input type="text" id="add-title" placeholder="Название">
+        <input type="text" id="add-title" placeholder="Title">
         <input type="url" id="add-url" placeholder="https://">
         <div class="actions">
-          <button id="save-btn">Сохранить</button>
-          <button id="cancel-btn">Отмена</button>
+          <button id="save-btn">Save</button>
+          <button id="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
 
     <!-- Низ: кнопка раскрытия -->
     <div class="border-t border-gray-100">
-      <button id="toggle-btn" class="icon-btn w-full" title="Раскрыть / свернуть">
+      <button id="toggle-btn" class="icon-btn w-full" title="Expand / Collapse">
         <i id="toggle-icon" class="fa-solid fa-chevron-right text-sm"></i>
       </button>
     </div>
@@ -383,18 +383,18 @@
 
   <!-- Контекстное меню (ПКМ) -->
   <div id="context-menu">
-    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Изменить</button>
-    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Удалить</button>
+    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
+    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
   </div>
 
   <!-- Модалка редактирования -->
   <div id="edit-modal">
     <div id="edit-box">
-      <input type="text" id="edit-title" placeholder="Название">
+      <input type="text" id="edit-title" placeholder="Title">
       <input type="url" id="edit-url" placeholder="https://">
       <div class="actions">
         <button id="edit-save" style="background:#1a73e8;color:white">OK</button>
-        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Отмена</button>
+        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Cancel</button>
       </div>
     </div>
   </div>

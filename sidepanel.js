@@ -25,7 +25,7 @@ let contextBookmarkId = null;
 let editBookmarkId = null;
 let dragSrcEl = null;
 
-// ===== Иконки соцсетей (Font Awesome) =====
+// ===== Social media icons (Font Awesome) =====
 const SOCIAL_ICONS = [
   { match: /twitter\.com|x\.com/i, icon: 'fa-brands fa-x-twitter', color: '#000' },
   { match: /facebook\.com|fb\.com/i, icon: 'fa-brands fa-facebook', color: '#1877f2' },
@@ -87,7 +87,7 @@ function createIconElement(url) {
   }
 }
 
-// ===== Раскрытие / сворачивание =====
+// ===== Expand / Collapse =====
 function togglePanel() {
   isExpanded = !isExpanded;
   panel.classList.toggle('expanded', isExpanded);
@@ -107,7 +107,7 @@ function togglePanel() {
 
 toggleBtn.addEventListener('click', togglePanel);
 
-// ===== Добавить текущую страницу =====
+// ===== Add current page =====
 addCurrentBtn.addEventListener('click', async () => {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -126,7 +126,7 @@ addCurrentBtn.addEventListener('click', async () => {
   }
 });
 
-// ===== Ручное добавление =====
+// ===== Manual add =====
 addManualBtn.addEventListener('click', () => {
   addForm.classList.add('visible');
   addManualBtn.style.display = 'none';
@@ -157,7 +157,7 @@ saveBtn.addEventListener('click', async () => {
   }
 });
 
-// ===== Контекстное меню =====
+// ===== Context menu =====
 function showContextMenu(e, bookmarkId) {
   e.preventDefault();
   contextBookmarkId = bookmarkId;
@@ -241,14 +241,14 @@ function handleDragEnd() {
 
 async function saveOrder() {
   const items = [...listEl.querySelectorAll('.bookmark-item')];
-  // Перемещаем в "Другие закладки" (id обычно "2") с новым индексом
-  // Чтобы не ломать структуру, перемещаем относительно друг друга
+  // Move to "Other bookmarks" (id typically "2") with new index
+  // To avoid breaking structure, move relative to each other
   for (let i = 0; i < items.length; i++) {
     const id = items[i].dataset.id;
     try {
       await chrome.bookmarks.move(id, { parentId: '2', index: i });
     } catch (e) {
-      // если не получилось в parentId 2 — пробуем без parentId
+      // if parentId 2 didn't work — try without parentId
       try {
         await chrome.bookmarks.move(id, { index: i });
       } catch (_) {}
@@ -257,12 +257,12 @@ async function saveOrder() {
   setTimeout(loadBookmarks, 200);
 }
 
-// ===== Рендер =====
+// ===== Render =====
 function renderExpandedList(bookmarks) {
   listEl.innerHTML = '';
 
   if (bookmarks.length === 0) {
-    listEl.innerHTML = `<div class="px-2 py-6 text-center text-gray-400 text-xs">Нет закладок</div>`;
+    listEl.innerHTML = `<div class="px-2 py-6 text-center text-gray-400 text-xs">No bookmarks</div>`;
     return;
   }
 
@@ -357,5 +357,5 @@ chrome.bookmarks.onRemoved.addListener(refresh);
 chrome.bookmarks.onChanged.addListener(refresh);
 chrome.bookmarks.onMoved.addListener(refresh);
 
-// Старт
+// Start
 loadCollapsedIcons();
