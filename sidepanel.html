@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Закладки</title>
+  <title>Bookmarks</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -35,7 +35,7 @@
       --panel-width: 120px;
     }
 
-    /* ===== Свёрнутый режим: только иконки ===== */
+    /* ===== Collapsed mode: icons only ===== */
     #collapsed-icons {
       flex: 1;
       overflow-y: auto;
@@ -76,7 +76,7 @@
       border-radius: 3px;
     }
 
-    /* ===== Развёрнутый список ===== */
+    /* ===== Expanded list ===== */
     #expanded-area {
       flex: 1;
       display: none;
@@ -142,7 +142,7 @@
       white-space: nowrap;
     }
 
-    /* ===== Кнопка + внизу списка ===== */
+    /* ===== + button at the bottom of the list ===== */
     #add-manual-btn {
       margin: 4px;
       height: 32px;
@@ -165,7 +165,7 @@
       background: #f0f7ff;
     }
 
-    /* Форма добавления */
+    /* Add form */
     #add-form {
       display: none;
       padding: 6px;
@@ -215,7 +215,7 @@
       color: #4b5563;
     }
 
-    /* Контекстное меню */
+    /* Context menu */
     #context-menu {
       position: fixed;
       background: white;
@@ -255,7 +255,7 @@
       background: #fef2f2;
     }
 
-    /* Модалка редактирования */
+    /* Edit modal */
     #edit-modal {
       position: fixed;
       inset: 0;
@@ -306,7 +306,7 @@
       cursor: pointer;
     }
 
-    /* Кнопки верх/низ */
+    /* Top / bottom buttons */
     .icon-btn {
       width: 40px;
       height: 40px;
@@ -331,7 +331,7 @@
       color: #1a73e8;
     }
 
-    /* Скроллбар */
+    /* Scrollbar */
     #bookmarks-list::-webkit-scrollbar,
     #collapsed-icons::-webkit-scrollbar {
       width: 3px;
@@ -345,56 +345,56 @@
 </head>
 <body>
   <div id="panel">
-    <!-- Верх: + (добавить текущую страницу) -->
-    <button id="add-current-btn" class="icon-btn" title="Добавить текущую страницу">
+    <!-- Top: + (add current page) -->
+    <button id="add-current-btn" class="icon-btn" title="Add current page">
       <i class="fa-solid fa-plus text-lg"></i>
     </button>
 
-    <!-- Свёрнутый режим: только иконки -->
+    <!-- Collapsed mode: icons only -->
     <div id="collapsed-icons"></div>
 
-    <!-- Развёрнутый режим -->
+    <!-- Expanded mode -->
     <div id="expanded-area">
       <div id="bookmarks-list"></div>
 
-      <!-- Кнопка + внизу списка -->
-      <button id="add-manual-btn" title="Добавить закладку">
+      <!-- + button at the bottom of the list -->
+      <button id="add-manual-btn" title="Add bookmark">
         <i class="fa-solid fa-plus"></i>
       </button>
 
-      <!-- Форма ручного добавления -->
+      <!-- Manual add form -->
       <div id="add-form">
-        <input type="text" id="add-title" placeholder="Название">
+        <input type="text" id="add-title" placeholder="Title">
         <input type="url" id="add-url" placeholder="https://">
         <div class="actions">
-          <button id="save-btn">Сохранить</button>
-          <button id="cancel-btn">Отмена</button>
+          <button id="save-btn">Save</button>
+          <button id="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
 
-    <!-- Низ: кнопка раскрытия -->
+    <!-- Bottom: expand button -->
     <div class="border-t border-gray-100">
-      <button id="toggle-btn" class="icon-btn w-full" title="Раскрыть / свернуть">
+      <button id="toggle-btn" class="icon-btn w-full" title="Expand / collapse">
         <i id="toggle-icon" class="fa-solid fa-chevron-right text-sm"></i>
       </button>
     </div>
   </div>
 
-  <!-- Контекстное меню (ПКМ) -->
+  <!-- Context menu (right-click) -->
   <div id="context-menu">
-    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Изменить</button>
-    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Удалить</button>
+    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
+    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
   </div>
 
-  <!-- Модалка редактирования -->
+  <!-- Edit modal -->
   <div id="edit-modal">
     <div id="edit-box">
-      <input type="text" id="edit-title" placeholder="Название">
+      <input type="text" id="edit-title" placeholder="Title">
       <input type="url" id="edit-url" placeholder="https://">
       <div class="actions">
         <button id="edit-save" style="background:#1a73e8;color:white">OK</button>
-        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Отмена</button>
+        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Cancel</button>
       </div>
     </div>
   </div>
