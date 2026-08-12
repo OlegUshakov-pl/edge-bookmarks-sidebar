@@ -1,10 +1,7 @@
-// ===== Content script: renders the bookmarks rail directly on the page =====
-// No chrome.bookmarks / chrome.tabs here — everything goes through background.
+// ===== Side panel: bookmarks UI =====
+// Extension page, so chrome.bookmarks / chrome.tabs are available directly.
 
 (function () {
-  if (document.getElementById('ebm-rail')) return;
-
-  // ---------- Icon helpers ----------
   const SOCIAL_ICONS = [
     { match: /twitter\.com|x\.com/i, icon: 'fa-brands fa-x-twitter', color: '#000' },
     { match: /facebook\.com|fb\.com/i, icon: 'fa-brands fa-facebook', color: '#1877f2' },
@@ -33,9 +30,7 @@
 
   function getIconForUrl(url) {
     for (const s of SOCIAL_ICONS) {
-      if (s.match.test(url)) {
-        return { type: 'fa', class: s.icon, color: s.color };
-      }
+      if (s.match.test(url)) return { type: 'fa', class: s.icon, color: s.color };
     }
     try {
       const domain = new URL(url).hostname;
@@ -65,64 +60,17 @@
     return img;
   }
 
-  // ---------- Build DOM ----------
-  const rail = document.createElement('div');
-  rail.id = 'ebm-rail';
-  rail.innerHTML = `
-    <button id="ebm-add-current" class="ebm-icon-btn" title="Add current page">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-    <div id="ebm-content">
-      <div id="ebm-collapsed"></div>
-      <div id="ebm-expanded">
-        <div id="ebm-list"></div>
-        <button id="ebm-add-manual" class="ebm-add-manual" title="Add bookmark">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-        <div id="ebm-form">
-          <input type="text" id="ebm-add-title" placeholder="Title">
-          <input type="url" id="ebm-add-url" placeholder="https://">
-          <div class="ebm-actions">
-            <button id="ebm-save">Save</button>
-            <button id="ebm-cancel">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button id="ebm-toggle" class="ebm-icon-btn" title="Expand / collapse">
-      <i id="ebm-toggle-icon" class="fa-solid fa-chevron-right"></i>
-    </button>
-    <div id="ebm-context">
-      <button id="ebm-ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
-      <button id="ebm-ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
-    </div>
-    <div id="ebm-edit">
-      <div id="ebm-edit-box">
-        <input type="text" id="ebm-edit-title" placeholder="Title">
-        <input type="url" id="ebm-edit-url" placeholder="https://">
-        <div class="ebm-actions">
-          <button id="ebm-edit-save">OK</button>
-          <button id="ebm-edit-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(rail);
+  function flatten(nodes, result = []) {
+    for (const node of nodes) {
+      if (node.url) result.push(node);
+      if (node.children) flatten(node.children, result);
+    }
+    return result;
+  }
 
-  // Font Awesome for brand/service icons
-  const fa = document.createElement('link');
-  fa.rel = 'stylesheet';
-  fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
-  document.head.appendChild(fa);
-
-  // ---------- Element refs ----------
-  const toggleBtn = document.getElementById('ebm-toggle');
-  const toggleIcon = document.getElementById('ebm-toggle-icon');
-  const addCurrentBtn = document.getElementById('ebm-add-current');
-  const collapsedEl = document.getElementById('ebm-collapsed');
-  const contentEl = document.getElementById('ebm-content');
-  const expandedEl = document.getElementById('ebm-expanded');
+  // ---------- Elements ----------
   const listEl = document.getElementById('ebm-list');
+  const addCurrentBtn = document.getElementById('ebm-add-current');
   const addManualBtn = document.getElementById('ebm-add-manual');
   const addForm = document.getElementById('ebm-form');
   const addTitle = document.getElementById('ebm-add-title');
@@ -139,49 +87,25 @@
   const editCancel = document.getElementById('ebm-edit-cancel');
 
   // ---------- State ----------
-  let isExpanded = false;
   let bookmarksCache = [];
   let contextBookmarkId = null;
   let editBookmarkId = null;
   let dragSrcEl = null;
 
-  // ---------- Messaging ----------
-  function send(msg) {
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage(msg, (resp) => resolve(resp));
-    });
-  }
-
-  // ---------- Expand / collapse ----------
-  function togglePanel() {
-    isExpanded = !isExpanded;
-    rail.classList.toggle('expanded', isExpanded);
-    if (isExpanded) {
-      toggleIcon.classList.remove('fa-chevron-right');
-      toggleIcon.classList.add('fa-chevron-left');
-      renderExpandedList(bookmarksCache);
-    } else {
-      toggleIcon.classList.remove('fa-chevron-left');
-      toggleIcon.classList.add('fa-chevron-right');
-      hideAddForm();
-      hideContextMenu();
-      renderCollapsedIcons(bookmarksCache);
-    }
-  }
-  toggleBtn.addEventListener('click', togglePanel);
-
-  function toggleVisibility() {
-    rail.classList.toggle('hidden');
+  async function loadBookmarks() {
+    const tree = await chrome.bookmarks.getTree();
+    bookmarksCache = flatten(tree).reverse(); // latest first
+    render();
   }
 
   // ---------- Add current page ----------
   addCurrentBtn.addEventListener('click', async () => {
-    const url = location.href;
-    if (!/^https?:/i.test(url)) return;
-    const title = document.title || url;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !/^https?:/i.test(tab.url || '')) return;
+    const title = tab.title || tab.url;
     addCurrentBtn.classList.add('active');
     setTimeout(() => addCurrentBtn.classList.remove('active'), 350);
-    await send({ type: 'addCurrent', title, url });
+    await chrome.bookmarks.create({ title, url: tab.url });
   });
 
   // ---------- Manual add ----------
@@ -199,12 +123,14 @@
   }
   cancelBtn.addEventListener('click', hideAddForm);
 
-  saveBtn.addEventListener('click', async () => {
+  addForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const title = addTitle.value.trim();
     let url = addUrl.value.trim();
     if (!url) return;
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    await send({ type: 'addManual', title: title || url, url });
+    if (!/^https?:/i.test(url)) return;
+    await chrome.bookmarks.create({ title: title || url, url });
     hideAddForm();
   });
 
@@ -213,8 +139,8 @@
     e.preventDefault();
     contextBookmarkId = bookmarkId;
     contextMenu.style.display = 'block';
-    contextMenu.style.left = Math.min(e.clientX, window.innerWidth - 120) + 'px';
-    contextMenu.style.top = Math.min(e.clientY, window.innerHeight - 80) + 'px';
+    contextMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
+    contextMenu.style.top = Math.min(e.clientY, window.innerHeight - 90) + 'px';
   }
   function hideContextMenu() {
     contextMenu.style.display = 'none';
@@ -238,10 +164,11 @@
 
   ctxDelete.addEventListener('click', async () => {
     if (!contextBookmarkId) return;
-    await send({ type: 'remove', id: contextBookmarkId });
+    await chrome.bookmarks.remove(contextBookmarkId);
     hideContextMenu();
   });
 
+  // ---------- Edit modal ----------
   editCancel.addEventListener('click', () => {
     editModal.classList.remove('visible');
     editBookmarkId = null;
@@ -253,7 +180,8 @@
     let url = editUrl.value.trim();
     if (!url) return;
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    await send({ type: 'update', id: editBookmarkId, title: title || url, url });
+    if (!/^https?:/i.test(url)) return;
+    await chrome.bookmarks.update(editBookmarkId, { title: title || url, url });
     editModal.classList.remove('visible');
     editBookmarkId = null;
   });
@@ -286,22 +214,31 @@
   async function saveOrder() {
     const items = [...listEl.querySelectorAll('.ebm-bookmark-item')];
     for (let i = 0; i < items.length; i++) {
-      await send({ type: 'move', id: items[i].dataset.id, index: i });
+      const id = items[i].dataset.id;
+      const parentId = items[i].dataset.parent;
+      let index = 0;
+      for (let j = 0; j < i; j++) {
+        if (items[j].dataset.parent === parentId) index++;
+      }
+      try {
+        await chrome.bookmarks.move(id, { parentId, index });
+      } catch (_) {}
     }
   }
 
   // ---------- Render ----------
-  function renderExpandedList(bookmarks) {
+  function render() {
     listEl.innerHTML = '';
-    if (!bookmarks || bookmarks.length === 0) {
-      listEl.innerHTML = `<div class="ebm-empty">No bookmarks</div>`;
+    if (!bookmarksCache.length) {
+      listEl.innerHTML = '<div class="ebm-empty">No bookmarks</div>';
       return;
     }
-    bookmarks.forEach((bm) => {
+    for (const bm of bookmarksCache) {
       const div = document.createElement('div');
       div.className = 'ebm-bookmark-item';
       div.draggable = true;
       div.dataset.id = bm.id;
+      div.dataset.parent = bm.parentId;
 
       const iconWrap = document.createElement('div');
       iconWrap.className = 'ebm-icon-wrap';
@@ -310,57 +247,28 @@
       const title = document.createElement('span');
       title.className = 'ebm-title';
       title.textContent = bm.title || bm.url;
+      title.title = bm.title || bm.url;
 
       div.appendChild(iconWrap);
       div.appendChild(title);
 
-      div.addEventListener('click', (e) => {
-        if (e.button === 0) window.open(bm.url, '_blank');
+      div.addEventListener('mouseup', (e) => {
+        if (e.button === 0) chrome.tabs.create({ url: bm.url });
       });
-      div.addEventListener('contextmenu', (e) => showContextMenu(e, bm.id));
       div.addEventListener('dragstart', handleDragStart);
       div.addEventListener('dragover', handleDragOver);
       div.addEventListener('dragend', handleDragEnd);
+      div.addEventListener('contextmenu', (e) => showContextMenu(e, bm.id));
 
       listEl.appendChild(div);
-    });
-  }
-
-  function renderCollapsedIcons(bookmarks) {
-    collapsedEl.innerHTML = '';
-    const items = (bookmarks || []).slice(0, 25);
-    items.forEach((bm) => {
-      const btn = document.createElement('div');
-      btn.className = 'ebm-collapsed-icon';
-      btn.title = bm.title || bm.url;
-      btn.appendChild(createIconElement(bm.url));
-      btn.addEventListener('click', () => window.open(bm.url, '_blank'));
-      btn.addEventListener('contextmenu', (e) => showContextMenu(e, bm.id));
-      collapsedEl.appendChild(btn);
-    });
-  }
-
-  function refresh() {
-    if (isExpanded) renderExpandedList(bookmarksCache);
-    else renderCollapsedIcons(bookmarksCache);
-  }
-
-  // ---------- Background messages ----------
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === 'bookmarksChanged') {
-      bookmarksCache = msg.bookmarks || [];
-      refresh();
-    } else if (msg.type === 'toggle') {
-      toggleVisibility();
     }
-  });
+  }
 
-  // ---------- Init ----------
-  // Keep the background service worker alive while this page is open.
-  try { chrome.runtime.connect(); } catch (_) {}
+  // ---------- Live sync ----------
+  chrome.bookmarks.onCreated.addListener(loadBookmarks);
+  chrome.bookmarks.onRemoved.addListener(loadBookmarks);
+  chrome.bookmarks.onChanged.addListener(loadBookmarks);
+  chrome.bookmarks.onMoved.addListener(loadBookmarks);
 
-  send({ type: 'getBookmarks' }).then((data) => {
-    bookmarksCache = data || [];
-    renderCollapsedIcons(bookmarksCache);
-  });
+  loadBookmarks();
 })();

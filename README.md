@@ -1,31 +1,32 @@
 # Simple Bookmarks Sidebar
 
-A minimal bookmarks rail for Microsoft Edge / Chrome (Manifest V3) that lives **directly on the page** — not in the browser's side panel. This gives full control over the width (a thin ~46px icon strip by default) and removes the native side-panel header.
+A minimal bookmarks **side panel** for Microsoft Edge / Chrome (Manifest V3) that opens when you click the extension icon.
 
 ## How it works
 
-- A **content script** (`content.js` + `content.css`) injects a fixed rail on the right edge of every page.
-- All `chrome.bookmarks` access happens in the **background service worker** (`background.js`). The content script talks to it via `chrome.runtime` messaging and cannot call `chrome.bookmarks` directly.
-- Clicking the toolbar icon toggles the rail's visibility. The rail is shown by default on every page it's injected into.
+- Clicking the toolbar icon opens a native side panel (`sidepanel.html`) via `chrome.sidePanel.open({ windowId })`.
+- Because the panel is bound to the **window** (not a tab's content), it works on **every** tab type — including `edge://newtab`, `edge://settings`, `chrome://`, and blank pages, where content scripts are forbidden.
+- The panel is an extension page, so it uses the `chrome.bookmarks` and `chrome.tabs` APIs directly.
 
 ## Features
 
-- **Collapsed mode** — a narrow strip with bookmark icons (latest 25).
-- **Expanded mode** — a list of bookmarks with titles, supports drag & drop reordering (toggle via the arrow button).
-- **Add current tab** — one-click `+` button at the top of the rail.
-- **Manual add** — `+` button at the bottom of the list with a form for title and URL.
+- **Latest bookmarks list** — all bookmarks flattened into one list, newest first.
+- **Add current page** — `+` button at the top of the panel.
+- **Manual add** — `Add bookmark` button at the bottom with a title/URL form.
 - **Context menu (right-click)** — edit or delete a bookmark.
+- **Drag & drop reordering** — reorder bookmarks within their own folder.
 - **Automatic icons** — popular sites use Font Awesome brand icons; everything else uses the site favicon from Google S2.
-- **Live sync** — the rail updates across all open tabs when bookmarks change.
+- **Live sync** — the panel updates automatically when bookmarks change.
 
 ## Project structure
 
 ```
-├── manifest.json      # Extension manifest (MV3) with content_scripts
-├── background.js      # Service worker: owns chrome.bookmarks, messaging, broadcast
-├── content.js         # Rail logic (render, add, edit, drag & drop) on the page
-├── content.css        # Rail styles (scoped under #ebm-rail)
-└── icons/             # Extension icons (16, 32, 48, 128)
+├── manifest.json     # Extension manifest (MV3): sidePanel permission + side_panel path
+├── background.js     # Service worker: opens the side panel on action click
+├── sidepanel.html    # Side panel markup
+├── sidepanel.js      # Side panel logic (list, add, edit, drag & drop)
+├── sidepanel.css     # Side panel styles
+└── icons/            # Extension icons (16, 32, 48, 128)
 ```
 
 ## Installation
@@ -33,11 +34,10 @@ A minimal bookmarks rail for Microsoft Edge / Chrome (Manifest V3) that lives **
 1. Open `edge://extensions` (or `chrome://extensions`) in the browser.
 2. Enable **Developer mode**.
 3. Click **Load unpacked** and select the project folder.
-4. Pin the extension and click its icon to toggle the bookmarks rail.
+4. Pin the extension and click its icon — the side panel opens on any page.
 
 ## Notes
 
-- Bookmarks are read from the whole tree and flattened into a single list (latest first).
-- Drag & drop sorting moves bookmarks into the "Other bookmarks" section (`parentId: 2`) so folder structure is not broken.
+- The old in-page rail (`content.js` / `content.css`) was replaced by the native side panel so the extension also works on `edge://` and blank tabs.
 - Font Awesome and favicons are loaded from CDN, so an internet connection is required for icons.
-- The rail is injected via `<all_urls>`, so it does not appear on browser internal pages (e.g. `edge://newtab`, `chrome://`).
+- Reordering is constrained to a bookmark's own folder so folder structure is preserved.

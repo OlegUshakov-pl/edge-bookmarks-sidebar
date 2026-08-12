@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmarks</title>
+  <link rel="stylesheet" href="sidepanel.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div id="ebm-root">
+    <div id="ebm-header">
+      <button id="ebm-add-current" class="ebm-icon-btn" title="Add current page">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+      <span id="ebm-title">Bookmarks</span>
+    </div>
+    <div id="ebm-list"></div>
+    <div id="ebm-footer">
+      <button id="ebm-add-manual" class="ebm-add-manual" title="Add bookmark">
+        <i class="fa-solid fa-plus"></i> Add bookmark
+      </button>
+      <form id="ebm-form">
+        <input type="text" id="ebm-add-title" placeholder="Title">
+        <input type="url" id="ebm-add-url" placeholder="https://">
+        <div class="ebm-actions">
+          <button type="submit" id="ebm-save">Save</button>
+          <button type="button" id="ebm-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="ebm-context">
+    <button id="ebm-ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
+    <button id="ebm-ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
+  </div>
+
+  <div id="ebm-edit">
+    <div id="ebm-edit-box">
+      <input type="text" id="ebm-edit-title" placeholder="Title">
+      <input type="url" id="ebm-edit-url" placeholder="https://">
+      <div class="ebm-actions">
+        <button id="ebm-edit-save">OK</button>
+        <button id="ebm-edit-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
