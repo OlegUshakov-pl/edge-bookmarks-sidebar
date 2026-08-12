@@ -1,7 +1,6 @@
 const panel = document.getElementById('panel');
 const toggleBtn = document.getElementById('toggle-btn');
 const toggleIcon = document.getElementById('toggle-icon');
-const addCurrentBtn = document.getElementById('add-current-btn');
 const collapsedIcons = document.getElementById('collapsed-icons');
 const listEl = document.getElementById('bookmarks-list');
 const addManualBtn = document.getElementById('add-manual-btn');
@@ -106,25 +105,6 @@ function togglePanel() {
 }
 
 toggleBtn.addEventListener('click', togglePanel);
-
-// ===== Add current page =====
-addCurrentBtn.addEventListener('click', async () => {
-  try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.url || /^(chrome|edge|about|devtools):/i.test(tab.url)) {
-      return;
-    }
-    await chrome.bookmarks.create({
-      title: tab.title || tab.url,
-      url: tab.url
-    });
-    addCurrentBtn.classList.add('active');
-    setTimeout(() => addCurrentBtn.classList.remove('active'), 350);
-    refresh();
-  } catch (e) {
-    console.error(e);
-  }
-});
 
 // ===== Manual add =====
 addManualBtn.addEventListener('click', () => {
