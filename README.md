@@ -1,63 +1,43 @@
 # Simple Bookmarks Sidebar
 
-A minimal bookmarks sidebar extension for Microsoft Edge (Manifest V3).
+A minimal bookmarks rail for Microsoft Edge / Chrome (Manifest V3) that lives **directly on the page** — not in the browser's side panel. This gives full control over the width (a thin ~46px icon strip by default) and removes the native side-panel header.
+
+## How it works
+
+- A **content script** (`content.js` + `content.css`) injects a fixed rail on the right edge of every page.
+- All `chrome.bookmarks` access happens in the **background service worker** (`background.js`). The content script talks to it via `chrome.runtime` messaging and cannot call `chrome.bookmarks` directly.
+- Clicking the toolbar icon toggles the rail's visibility. The rail is shown by default on every page it's injected into.
 
 ## Features
 
 - **Collapsed mode** — a narrow strip with bookmark icons (latest 25).
-- **Expanded mode** — a list of bookmarks with titles, supports drag & drop reordering.
-- **Add current tab** — one-click `+` button at the top of the panel.
+- **Expanded mode** — a list of bookmarks with titles, supports drag & drop reordering (toggle via the arrow button).
+- **Add current tab** — one-click `+` button at the top of the rail.
 - **Manual add** — `+` button at the bottom of the list with a form for title and URL.
 - **Context menu (right-click)** — edit or delete a bookmark.
-- **Automatic icons** — recognition of popular sites (social networks, GitHub, Google, etc.) via Font Awesome; for everything else, the site favicon from Google S2.
-- **Live sync** — the panel automatically updates when bookmarks change in the browser.
+- **Automatic icons** — popular sites use Font Awesome brand icons; everything else uses the site favicon from Google S2.
+- **Live sync** — the rail updates across all open tabs when bookmarks change.
 
 ## Project structure
 
 ```
-├── manifest.json      # Extension manifest (Manifest V3)
-├── background.js      # Service worker: open the panel on icon click
-├── sidepanel.html     # Sidebar markup and styles
-├── sidepanel.js       # Panel logic (render, add, edit, drag & drop)
+├── manifest.json      # Extension manifest (MV3) with content_scripts
+├── background.js      # Service worker: owns chrome.bookmarks, messaging, broadcast
+├── content.js         # Rail logic (render, add, edit, drag & drop) on the page
+├── content.css        # Rail styles (scoped under #ebm-rail)
 └── icons/             # Extension icons (16, 32, 48, 128)
 ```
 
 ## Installation
 
-1. Open `edge://extensions` in Microsoft Edge.
-2. Enable **Developer mode** in the bottom-left corner.
+1. Open `edge://extensions` (or `chrome://extensions`) in the browser.
+2. Enable **Developer mode**.
 3. Click **Load unpacked** and select the project folder.
-4. Pin the extension to the toolbar and click its icon to open the bookmarks panel.
-
-> The panel is also available via Edge menu → **More tools** → **Show side panel** (while the extension is active).
-
-## Usage
-
-- **Open a bookmark** — click it.
-- **Collapse / expand** — the arrow button at the bottom of the panel.
-- **Add current page** — the `+` button at the top.
-- **Add manually** — the `+` button at the bottom of the list.
-- **Edit / delete** — right-click a bookmark.
-- **Reorder** — drag and drop bookmarks in the expanded list.
-
-## Dependencies
-
-Loaded via CDN in `sidepanel.html`:
-
-- [Tailwind CSS](https://tailwindcss.com) — utility styles.
-- [Font Awesome 6.5.1](https://fontawesome.com) — brand and service icons.
-
-## Extension permissions
-
-| Permission  | Purpose                                            |
-|-------------|----------------------------------------------------|
-| `sidePanel` | Display the sidebar                                |
-| `bookmarks` | Read, create, update, delete bookmarks             |
-| `tabs`      | Get the active tab and open links                  |
-| `storage`   | Store state (reserved)                             |
+4. Pin the extension and click its icon to toggle the bookmarks rail.
 
 ## Notes
 
 - Bookmarks are read from the whole tree and flattened into a single list (latest first).
 - Drag & drop sorting moves bookmarks into the "Other bookmarks" section (`parentId: 2`) so folder structure is not broken.
-- Dependencies (Tailwind, Font Awesome) are loaded from CDN, so an internet connection is required for the panel to work.
+- Font Awesome and favicons are loaded from CDN, so an internet connection is required for icons.
+- The rail is injected via `<all_urls>`, so it does not appear on browser internal pages (e.g. `edge://newtab`, `chrome://`).
