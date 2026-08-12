@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": " ",
+  "name": "Простая панель закладок",
   "version": "1.0.0",
-  "description": "A minimal bookmarks sidebar for Microsoft Edge",
+  "description": "Минималистичная боковая панель с закладками для Microsoft Edge",
   "permissions": [
     "sidePanel",
     "bookmarks",
@@ -16,7 +16,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Open bookmarks panel",
+    "default_title": "Открыть панель закладок",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

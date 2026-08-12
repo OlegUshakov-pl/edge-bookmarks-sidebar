@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
+  <title>Закладки</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -32,7 +32,7 @@
     }
 
     #panel.expanded {
-      --panel-width: 40px;
+      --panel-width: 120px;
     }
 
     /* ===== Свёрнутый режим: только иконки ===== */
@@ -57,7 +57,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0;
+      border-radius: 8px;
       cursor: pointer;
       color: #4b5563;
       font-size: 15px;
@@ -73,7 +73,7 @@
     .collapsed-icon img {
       width: 16px;
       height: 16px;
-      border-radius: 0;
+      border-radius: 3px;
     }
 
     /* ===== Развёрнутый список ===== */
@@ -100,7 +100,7 @@
       align-items: center;
       padding: 5px 6px;
       margin: 1px 4px;
-      border-radius: 0;
+      border-radius: 6px;
       cursor: grab;
       font-size: 12px;
       color: #374151;
@@ -132,7 +132,7 @@
     .bookmark-item .icon-wrap img {
       width: 16px;
       height: 16px;
-      border-radius: 0;
+      border-radius: 2px;
     }
 
     .bookmark-item .title {
@@ -146,7 +146,7 @@
     #add-manual-btn {
       margin: 4px;
       height: 32px;
-      border-radius: 0;
+      border-radius: 6px;
       border: 1px dashed #d1d5db;
       background: transparent;
       color: #9ca3af;
@@ -182,7 +182,7 @@
       width: 100%;
       padding: 5px 8px;
       border: 1px solid #d1d5db;
-      border-radius: 0;
+      border-radius: 5px;
       font-size: 11px;
       outline: none;
     }
@@ -199,7 +199,7 @@
     #add-form button {
       flex: 1;
       padding: 4px;
-      border-radius: 0;
+      border-radius: 5px;
       font-size: 11px;
       cursor: pointer;
       border: none;
@@ -220,7 +220,7 @@
       position: fixed;
       background: white;
       border: 1px solid #e5e7eb;
-      border-radius: 0;
+      border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.12);
       padding: 4px;
       z-index: 100;
@@ -239,7 +239,7 @@
       font-size: 12px;
       color: #374151;
       cursor: pointer;
-      border-radius: 0;
+      border-radius: 5px;
       text-align: left;
     }
 
@@ -272,7 +272,7 @@
 
     #edit-box {
       background: white;
-      border-radius: 0;
+      border-radius: 10px;
       padding: 12px;
       width: 110px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -282,7 +282,7 @@
       width: 100%;
       padding: 6px 8px;
       border: 1px solid #d1d5db;
-      border-radius: 0;
+      border-radius: 5px;
       font-size: 11px;
       margin-bottom: 6px;
       outline: none;
@@ -300,7 +300,7 @@
     #edit-box button {
       flex: 1;
       padding: 5px;
-      border-radius: 0;
+      border-radius: 5px;
       font-size: 11px;
       border: none;
       cursor: pointer;
@@ -327,6 +327,10 @@
       color: #1a73e8;
     }
 
+    .icon-btn.active {
+      color: #1a73e8;
+    }
+
     /* Скроллбар */
     #bookmarks-list::-webkit-scrollbar,
     #collapsed-icons::-webkit-scrollbar {
@@ -335,12 +339,17 @@
     #bookmarks-list::-webkit-scrollbar-thumb,
     #collapsed-icons::-webkit-scrollbar-thumb {
       background: #d1d5db;
-      border-radius: 0;
+      border-radius: 2px;
     }
   </style>
 </head>
 <body>
   <div id="panel">
+    <!-- Верх: + (добавить текущую страницу) -->
+    <button id="add-current-btn" class="icon-btn" title="Добавить текущую страницу">
+      <i class="fa-solid fa-plus text-lg"></i>
+    </button>
+
     <!-- Свёрнутый режим: только иконки -->
     <div id="collapsed-icons"></div>
 
@@ -349,24 +358,24 @@
       <div id="bookmarks-list"></div>
 
       <!-- Кнопка + внизу списка -->
-      <button id="add-manual-btn" title="Add bookmark">
+      <button id="add-manual-btn" title="Добавить закладку">
         <i class="fa-solid fa-plus"></i>
       </button>
 
       <!-- Форма ручного добавления -->
       <div id="add-form">
-        <input type="text" id="add-title" placeholder="Title">
+        <input type="text" id="add-title" placeholder="Название">
         <input type="url" id="add-url" placeholder="https://">
         <div class="actions">
-          <button id="save-btn">Save</button>
-          <button id="cancel-btn">Cancel</button>
+          <button id="save-btn">Сохранить</button>
+          <button id="cancel-btn">Отмена</button>
         </div>
       </div>
     </div>
 
     <!-- Низ: кнопка раскрытия -->
     <div class="border-t border-gray-100">
-      <button id="toggle-btn" class="icon-btn w-full" title="Expand / Collapse">
+      <button id="toggle-btn" class="icon-btn w-full" title="Раскрыть / свернуть">
         <i id="toggle-icon" class="fa-solid fa-chevron-right text-sm"></i>
       </button>
     </div>
@@ -374,18 +383,18 @@
 
   <!-- Контекстное меню (ПКМ) -->
   <div id="context-menu">
-    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
-    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
+    <button id="ctx-edit"><i class="fa-solid fa-pen"></i> Изменить</button>
+    <button id="ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Удалить</button>
   </div>
 
   <!-- Модалка редактирования -->
   <div id="edit-modal">
     <div id="edit-box">
-      <input type="text" id="edit-title" placeholder="Title">
+      <input type="text" id="edit-title" placeholder="Название">
       <input type="url" id="edit-url" placeholder="https://">
       <div class="actions">
         <button id="edit-save" style="background:#1a73e8;color:white">OK</button>
-        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Cancel</button>
+        <button id="edit-cancel" style="background:#f3f4f6;color:#4b5563">Отмена</button>
       </div>
     </div>
   </div>
