@@ -2,7 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Tab</title>
+  <link rel="stylesheet" href="content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body></body>
+<body>
+  <div id="ebm-rail">
+    <button id="ebm-add-current" class="ebm-icon-btn" title="Add current page">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+    <div id="ebm-content">
+      <div id="ebm-collapsed"></div>
+      <div id="ebm-expanded">
+        <div id="ebm-list"></div>
+        <button id="ebm-add-manual" class="ebm-add-manual" title="Add bookmark">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <div id="ebm-form">
+          <input type="text" id="ebm-add-title" placeholder="Title">
+          <input type="url" id="ebm-add-url" placeholder="https://">
+          <div class="ebm-actions">
+            <button id="ebm-save">Save</button>
+            <button id="ebm-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button id="ebm-toggle" class="ebm-icon-btn" title="Expand / collapse">
+      <i id="ebm-toggle-icon" class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div id="ebm-context">
+      <button id="ebm-ctx-edit"><i class="fa-solid fa-pen"></i> Edit</button>
+      <button id="ebm-ctx-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</button>
+    </div>
+    <div id="ebm-edit">
+      <div id="ebm-edit-box">
+        <input type="text" id="ebm-edit-title" placeholder="Title">
+        <input type="url" id="ebm-edit-url" placeholder="https://">
+        <div class="ebm-actions">
+          <button id="ebm-edit-save">OK</button>
+          <button id="ebm-edit-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="newtab.js"></script>
+</body>
 </html>
