@@ -7,6 +7,7 @@
     "bookmarks",
     "tabs",
     "storage",
+    "scripting",
     "sidePanel"
   ],
   "background": {
@@ -28,5 +29,16 @@
   },
   "side_panel": {
     "default_path": "sidepanel.html"
-  }
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
 }

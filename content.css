@@ -1,0 +1,326 @@
+﻿#ebm-rail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 46px;
+  background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
+  z-index: 2147483600;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#ebm-rail.hidden {
+  display: none;
+}
+
+#ebm-rail.expanded {
+  width: 210px;
+}
+
+#ebm-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Collapsed = icons only */
+#ebm-collapsed {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  gap: 2px;
+}
+
+#ebm-rail.expanded #ebm-collapsed {
+  display: none;
+}
+
+.ebm-collapsed-icon {
+  width: 100%;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4b5563;
+  font-size: 22px;
+  flex-shrink: 0;
+  margin: 4px 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ebm-collapsed-icon:hover {
+  background: #f3f4f6;
+  color: #1a73e8;
+}
+
+.ebm-collapsed-icon img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Expanded = list with titles */
+#ebm-expanded {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#ebm-rail.expanded #ebm-expanded {
+  display: flex;
+}
+
+#ebm-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+.ebm-bookmark-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  margin: 1px 5px;
+  cursor: grab;
+  font-size: 12px;
+  color: #374151;
+  transition: background 0.15s;
+  user-select: none;
+  gap: 6px;
+}
+
+.ebm-bookmark-item:hover {
+  background: #f3f4f6;
+}
+
+.ebm-bookmark-item.dragging {
+  opacity: 0.4;
+  background: #e0e7ff;
+}
+
+.ebm-icon-wrap {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.ebm-icon-wrap img {
+  width: 16px;
+  height: 16px;
+}
+
+.ebm-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ebm-empty {
+  padding: 24px 8px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* + button at the bottom of the list */
+.ebm-add-manual {
+  margin: 0 5px;
+  height: 32px;
+  border: 1px dashed #d1d5db;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.ebm-add-manual:hover {
+  border-color: #1a73e8;
+  color: #1a73e8;
+  background: #f0f7ff;
+}
+
+/* Manual add form */
+#ebm-form {
+  display: none;
+  padding: 6px;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+#ebm-form.visible {
+  display: flex;
+}
+
+#ebm-form input {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  font-size: 11px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#ebm-form input:focus {
+  border-color: #1a73e8;
+}
+
+.ebm-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.ebm-actions button {
+  flex: 1;
+  padding: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  border: none;
+}
+
+#ebm-save,
+#ebm-edit-save {
+  background: #1a73e8;
+  color: white;
+}
+
+#ebm-cancel,
+#ebm-edit-cancel {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Context menu */
+#ebm-context {
+  position: fixed;
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 2147483700;
+  display: none;
+  min-width: 110px;
+}
+
+#ebm-context button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+}
+
+#ebm-context button:hover {
+  background: #f3f4f6;
+}
+
+#ebm-context button.danger {
+  color: #dc2626;
+}
+
+#ebm-context button.danger:hover {
+  background: #fef2f2;
+}
+
+/* Edit modal */
+#ebm-edit {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147483800;
+}
+
+#ebm-edit.visible {
+  display: flex;
+}
+
+#ebm-edit-box {
+  background: white;
+  padding: 12px;
+  width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+#ebm-edit-box input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  font-size: 11px;
+  margin-bottom: 6px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#ebm-edit-box input:focus {
+  border-color: #1a73e8;
+}
+
+/* Top / bottom buttons */
+.ebm-icon-btn {
+  width: 100%;
+  height: 40px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: none;
+  background: transparent;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.ebm-icon-btn:hover {
+  background: #f3f4f6;
+  color: #1a73e8;
+}
+
+.ebm-icon-btn.active {
+  color: #1a73e8;
+}
+
+/* Scrollbars */
+#ebm-list::-webkit-scrollbar,
+#ebm-collapsed::-webkit-scrollbar {
+  width: 3px;
+}
+
+#ebm-list::-webkit-scrollbar-thumb,
+#ebm-collapsed::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
