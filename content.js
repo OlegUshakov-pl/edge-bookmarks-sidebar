@@ -53,15 +53,26 @@
       i.style.color = info.color;
       return i;
     }
+    var domain = '';
+    try { domain = new URL(url).hostname.replace(/^www\./, ''); } catch (_) {}
+    var letter = (domain.charAt(0) || '?').toUpperCase();
+    var hue = 0;
+    for (var k = 0; k < domain.length; k++) hue = (hue * 31 + domain.charCodeAt(k)) % 360;
+
+    var fallback = document.createElement('div');
+    fallback.style.cssText = 'width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;background:hsl(' + hue + ',50%,45%)';
+    fallback.textContent = letter;
+
     const img = document.createElement('img');
     img.src = info.src;
     img.alt = '';
-    img.onerror = () => {
-      const fallback = document.createElement('i');
-      fallback.className = 'fa-solid fa-globe';
-      fallback.style.color = '#9ca3af';
-      img.replaceWith(fallback);
+    img.onerror = function () {
+      if (img.parentNode) img.parentNode.replaceChild(fallback, img);
     };
+    var timer = setTimeout(function () {
+      if (img.parentNode && img.naturalWidth === 0) img.parentNode.replaceChild(fallback, img);
+    }, 3000);
+    img.onload = function () { clearTimeout(timer); };
     return img;
   }
 
